@@ -52,8 +52,8 @@ async fn main() {
 
         screen_drawer.draw_scaled(|| {
             clear_background(LIME);
-            player.draw();
-            enemies.iter().for_each(Enemy::draw);
+            player.character.draw();
+            enemies.iter().for_each(|enemy| enemy.character.draw());
         });
 
         next_frame().await;

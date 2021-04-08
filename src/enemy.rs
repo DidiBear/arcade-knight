@@ -3,7 +3,7 @@ use macroquad::{prelude::*, rand::ChooseRandom};
 use crate::{character::Character, ENEMY_SPEED, GAME_HEIGHT, GAME_WIDTH};
 
 pub struct Enemy {
-    character: Character,
+    pub character: Character,
 }
 
 impl Enemy {
@@ -26,10 +26,6 @@ impl Enemy {
     /// Moves the enemy following its direction.
     pub fn update(&mut self) {
         self.character.move_body(ENEMY_SPEED);
-    }
-
-    pub fn draw(&self) {
-        self.character.draw();
     }
 }
 

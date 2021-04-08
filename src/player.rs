@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 use crate::{character::Character, GAME_HEIGHT, GAME_WIDTH};
 
 pub struct Player {
-    character: Character,
+    pub character: Character,
 }
 
 impl Player {
@@ -14,7 +14,4 @@ impl Player {
         }
     }
 
-    pub fn draw(&self) {
-        self.character.draw();
-    }
 }
