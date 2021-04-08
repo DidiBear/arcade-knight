@@ -36,4 +36,9 @@ impl Character {
     pub fn move_body(&mut self, speed: f32) {
         self.body = self.body.offset(self.direction * get_frame_time() * speed);
     }
+
+    /// Returns true if both characters are in collision.
+    pub fn collide(&self, other: &Self) -> bool {
+        self.body.overlaps(&other.body)
+    }
 }

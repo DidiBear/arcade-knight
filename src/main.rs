@@ -26,7 +26,7 @@ pub const GAME_WIDTH: f32 = 250.;
 /// Height of the game.
 pub const GAME_HEIGHT: f32 = 250.;
 /// Movement speed of enemies.
-pub const ENEMY_SPEED: f32 = 15.;
+pub const ENEMY_SPEED: f32 = 20.;
 /// Initial delay between each enemy spawn.
 pub const INITIAL_SPAWN_DELAY: f64 = 3.;
 
@@ -40,7 +40,7 @@ async fn main() {
     let player = Player::new(player_texture);
     let mut enemies: Vec<Enemy> = Vec::new();
     let mut spawner = Spawner::new(INITIAL_SPAWN_DELAY);
-    
+
     let screen_drawer = ScreenDrawer::new(vec2(GAME_WIDTH, GAME_HEIGHT));
 
     loop {
@@ -49,6 +49,8 @@ async fn main() {
         }
         spawner.tick_and_spawn(|| enemies.push(Enemy::new_random(enemy_texture)));
         enemies.iter_mut().for_each(Enemy::update);
+
+        enemies.retain(|enemy| !enemy.character.collide(&player.character));
 
         screen_drawer.draw_scaled(|| {
             clear_background(LIME);
