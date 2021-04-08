@@ -38,11 +38,20 @@ pub const LIVES: u32 = 3;
 async fn main() {
     seed_random();
 
+    let font = load_ttf_font("resources/Kenney Pixel Square.ttf").await;
+    let text_params = TextParams {
+        font_size: 8,
+        font_scale: 1.,
+        font,
+        color: WHITE,
+    };
+
     let player_texture = load_scalable_texture("resources/player.png").await;
     let enemy_texture = load_scalable_texture("resources/enemy.png").await;
     let heart_texture = load_scalable_texture("resources/heart.png").await;
     let empty_heart_texture = load_scalable_texture("resources/empty_heart.png").await;
 
+    let mut score: u32 = 0;
     let mut life_bar = LifeBar::new(LIVES, heart_texture, empty_heart_texture);
 
     let mut player = Player::new(player_texture);
@@ -69,6 +78,7 @@ async fn main() {
 
         enemies.retain(|enemy| {
             if attack.as_ref().map_or(false, |attack| attack.kill(enemy)) {
+                score += 10;
                 return false;
             }
             if enemy.character.collide(&player.character) {
@@ -84,10 +94,29 @@ async fn main() {
             enemies.iter().for_each(|enemy| enemy.character.draw());
             life_bar.draw();
             attack.as_ref().map(Slash::draw);
+            draw_score(score, text_params);
         });
 
         next_frame().await;
     }
+}
+
+/// Draws the score text at the top right of the screen.
+fn draw_score(score: u32, params: TextParams) {
+    let text = format!("Score: {}", score);
+
+    let size = measure_text(
+        &text,
+        Some(params.font),
+        params.font_size,
+        params.font_scale,
+    );
+
+    let margin = 4.;
+    let x = GAME_WIDTH - size.width - margin;
+    let y = size.height + margin;
+
+    draw_text_ex(&text, x, y, params)
 }
 
 /// Seed the random generator with the current time.
