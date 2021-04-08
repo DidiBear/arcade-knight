@@ -7,17 +7,19 @@
     clippy::cargo,
     missing_docs
 )]
-#![allow(clippy::future_not_send)]
+#![allow(clippy::future_not_send, clippy::cast_precision_loss)]
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use enemy::{Enemy, Spawner};
+use life_bar::LifeBar;
 use macroquad::{prelude::*, rand::srand};
 use player::Player;
 use screen_drawer::{load_scalable_texture, ScreenDrawer};
 
 mod character;
 mod enemy;
+mod life_bar;
 mod player;
 mod screen_drawer;
 
@@ -29,6 +31,8 @@ pub const GAME_HEIGHT: f32 = 250.;
 pub const ENEMY_SPEED: f32 = 20.;
 /// Initial delay between each enemy spawn.
 pub const INITIAL_SPAWN_DELAY: f64 = 3.;
+/// Initial amount of life the player has.
+pub const LIVES: u32 = 3;
 
 #[macroquad::main("Arcade Knight")]
 async fn main() {
@@ -36,6 +40,10 @@ async fn main() {
 
     let player_texture = load_scalable_texture("resources/player.png").await;
     let enemy_texture = load_scalable_texture("resources/enemy.png").await;
+    let heart_texture = load_scalable_texture("resources/heart.png").await;
+    let empty_heart_texture = load_scalable_texture("resources/empty_heart.png").await;
+
+    let mut life_bar = LifeBar::new(LIVES, heart_texture, empty_heart_texture);
 
     let player = Player::new(player_texture);
     let mut enemies: Vec<Enemy> = Vec::new();
@@ -50,12 +58,19 @@ async fn main() {
         spawner.tick_and_spawn(|| enemies.push(Enemy::new_random(enemy_texture)));
         enemies.iter_mut().for_each(Enemy::update);
 
-        enemies.retain(|enemy| !enemy.character.collide(&player.character));
-
+        enemies.retain(|enemy| {
+            let collide = enemy.character.collide(&player.character);
+            if collide {
+                life_bar.decrement();
+            }
+            !collide
+        });
+        
         screen_drawer.draw_scaled(|| {
             clear_background(LIME);
             player.character.draw();
             enemies.iter().for_each(|enemy| enemy.character.draw());
+            life_bar.draw();
         });
 
         next_frame().await;
