@@ -1,0 +1,14 @@
+[package]
+name = "arcade-knight"
+version = "0.1.0"
+authors = ["Adrien Turiot <aturiot@pyx4.com>"]
+edition = "2018"
+description = "A small game made with macroquad"
+repository = "https://github.com/DidiBear/arcade-knight"
+readme = "README.md"
+license = "MIT"
+categories = ["games"]
+keywords = ["game"]
+
+[dependencies]
+macroquad = "0.3.0-alpha.17"
