@@ -7,7 +7,11 @@
     clippy::cargo,
     missing_docs
 )]
-#![allow(clippy::future_not_send, clippy::cast_precision_loss)]
+#![allow(
+    clippy::future_not_send,
+    clippy::cast_precision_loss,
+    clippy::cast_possible_truncation
+)]
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -34,7 +38,7 @@ pub const INITIAL_SPAWN_DELAY: f64 = 1.;
 /// Initial amount of life the player has.
 pub const LIVES: u32 = 3;
 
-#[macroquad::main("Arcade Knight")]
+#[macroquad::main(window_conf)]
 async fn main() {
     seed_random();
 
@@ -98,6 +102,15 @@ async fn main() {
         });
 
         next_frame().await;
+    }
+}
+
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "Arcade Knight".to_owned(),
+        window_width: (GAME_WIDTH * 3.) as i32,
+        window_height: (GAME_HEIGHT * 3.) as i32,
+        ..Conf::default()
     }
 }
 
