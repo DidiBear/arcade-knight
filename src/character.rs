@@ -2,8 +2,8 @@ use macroquad::prelude::*;
 
 pub struct Character {
     texture: Texture2D,
-    body: Rect,
-    direction: Vec2,
+    pub body: Rect,
+    pub direction: Vec2,
 }
 
 impl Character {

@@ -14,7 +14,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use enemy::{Enemy, Spawner};
 use life_bar::LifeBar;
 use macroquad::{prelude::*, rand::srand};
-use player::Player;
+use player::{Player, Slash};
 use screen_drawer::{load_scalable_texture, ScreenDrawer};
 
 mod character;
@@ -55,22 +55,33 @@ async fn main() {
         if is_key_down(KeyCode::Escape) {
             break;
         }
+
+        let attack = if is_key_down(KeyCode::Space) {
+            Some(player.slash_attack())
+        } else {
+            None
+        };
+
         spawner.tick_and_spawn(|| enemies.push(Enemy::new_random(enemy_texture)));
         enemies.iter_mut().for_each(Enemy::update);
 
         enemies.retain(|enemy| {
-            let collide = enemy.character.collide(&player.character);
-            if collide {
-                life_bar.decrement();
+            if attack.as_ref().map_or(false, |attack| attack.kill(enemy)) {
+                return false;
             }
-            !collide
+            if enemy.character.collide(&player.character) {
+                life_bar.decrement();
+                return false;
+            }
+            true
         });
-        
+
         screen_drawer.draw_scaled(|| {
             clear_background(LIME);
             player.character.draw();
             enemies.iter().for_each(|enemy| enemy.character.draw());
             life_bar.draw();
+            attack.as_ref().map(Slash::draw);
         });
 
         next_frame().await;
