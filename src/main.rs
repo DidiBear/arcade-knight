@@ -11,7 +11,7 @@
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use enemy::Enemy;
+use enemy::{Enemy, Spawner};
 use macroquad::{prelude::*, rand::srand};
 use player::Player;
 use screen_drawer::{load_scalable_texture, ScreenDrawer};
@@ -27,6 +27,8 @@ pub const GAME_WIDTH: f32 = 250.;
 pub const GAME_HEIGHT: f32 = 250.;
 /// Movement speed of enemies.
 pub const ENEMY_SPEED: f32 = 15.;
+/// Initial delay between each enemy spawn.
+pub const INITIAL_SPAWN_DELAY: f64 = 3.;
 
 #[macroquad::main("Arcade Knight")]
 async fn main() {
@@ -36,19 +38,22 @@ async fn main() {
     let enemy_texture = load_scalable_texture("resources/enemy.png").await;
 
     let player = Player::new(player_texture);
-    let mut enemy = Enemy::new_random(enemy_texture);
+    let mut enemies: Vec<Enemy> = Vec::new();
+    let mut spawner = Spawner::new(INITIAL_SPAWN_DELAY);
+    
     let screen_drawer = ScreenDrawer::new(vec2(GAME_WIDTH, GAME_HEIGHT));
 
     loop {
         if is_key_down(KeyCode::Escape) {
             break;
         }
-        enemy.update();
+        spawner.tick_and_spawn(|| enemies.push(Enemy::new_random(enemy_texture)));
+        enemies.iter_mut().for_each(Enemy::update);
 
         screen_drawer.draw_scaled(|| {
             clear_background(LIME);
             player.draw();
-            enemy.draw();
+            enemies.iter().for_each(Enemy::draw);
         });
 
         next_frame().await;

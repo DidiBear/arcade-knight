@@ -32,3 +32,28 @@ impl Enemy {
         self.character.draw();
     }
 }
+
+pub struct Spawner {
+    time: f64,
+    spawn_delay: f64,
+}
+
+impl Spawner {
+    pub fn new(spawn_delay: f64) -> Self {
+        Self {
+            time: get_time(),
+            spawn_delay,
+        }
+    }
+
+    /// Updates the tracked time and executes the given `spawn` function if the delay is reached.
+    pub fn tick_and_spawn(&mut self, spawn: impl FnOnce()) {
+        let current_time = get_time();
+
+        if current_time - self.time > self.spawn_delay {
+            self.time = current_time;
+
+            spawn();
+        }
+    }
+}
