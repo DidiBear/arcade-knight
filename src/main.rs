@@ -16,6 +16,7 @@ use macroquad::{prelude::*, rand::srand};
 use player::Player;
 use screen_drawer::{load_scalable_texture, ScreenDrawer};
 
+mod character;
 mod enemy;
 mod player;
 mod screen_drawer;
@@ -42,9 +43,7 @@ async fn main() {
         if is_key_down(KeyCode::Escape) {
             break;
         }
-        let delta_time = get_frame_time();
-
-        enemy.update(delta_time);
+        enemy.update();
 
         screen_drawer.draw_scaled(|| {
             clear_background(LIME);

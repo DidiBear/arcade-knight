@@ -1,11 +1,9 @@
 use macroquad::{prelude::*, rand::ChooseRandom};
 
-use crate::{ENEMY_SPEED, GAME_HEIGHT, GAME_WIDTH};
+use crate::{character::Character, ENEMY_SPEED, GAME_HEIGHT, GAME_WIDTH};
 
 pub struct Enemy {
-    texture: Texture2D,
-    body: Rect,
-    direction: Vec2,
+    character: Character,
 }
 
 impl Enemy {
@@ -19,30 +17,18 @@ impl Enemy {
         ];
 
         let (direction, x, y) = default_values.choose().unwrap();
-        let (width, height) = (texture.width(), texture.height());
-
-        // Center the position to the middle of the texture
-        let (x, y) = (x - width / 2., y - height / 2.);
 
         Self {
-            texture,
-            body: Rect::new(x, y, width, height),
-            direction: *direction,
+            character: Character::new(*x, *y, *direction, texture),
         }
     }
 
     /// Moves the enemy following its direction.
-    pub fn update(&mut self, delta_time: f32) {
-        self.body = self.body.offset(self.direction * delta_time * ENEMY_SPEED);
+    pub fn update(&mut self) {
+        self.character.move_body(ENEMY_SPEED);
     }
 
-    /// Draws the enemy texture.
     pub fn draw(&self) {
-        let Rect { x, y, w, h } = self.body;
-
-        draw_texture(self.texture, x, y, WHITE);
-
-        #[cfg(debug_assertions)]
-        draw_rectangle_lines(x, y, w, h, 2., RED);
+        self.character.draw();
     }
 }
