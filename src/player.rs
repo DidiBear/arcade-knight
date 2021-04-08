@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::{GAME_HEIGHT, GAME_WIDTH, character::Character, enemy::Enemy};
+use crate::{character::Character, enemy::Enemy, GAME_HEIGHT, GAME_WIDTH};
 
 pub struct Player {
     pub character: Character,
@@ -12,6 +12,23 @@ impl Player {
         Self {
             character: Character::new(GAME_WIDTH / 2., GAME_HEIGHT / 2., vec2(1.0, 0.0), texture),
         }
+    }
+
+    /// Updates the player's direction depending on the pressed keys.
+    pub fn update_direction(&mut self) {
+        let direction = if is_key_down(KeyCode::Up) {
+            vec2(0., -1.)
+        } else if is_key_down(KeyCode::Down) {
+            vec2(0., 1.)
+        } else if is_key_down(KeyCode::Left) {
+            vec2(-1., 0.)
+        } else if is_key_down(KeyCode::Right) {
+            vec2(1., 0.)
+        } else {
+            self.character.direction
+        };
+
+        self.character.direction = direction;
     }
 
     /// Returns a slash attack positioned at the player's direction   
