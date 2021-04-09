@@ -17,7 +17,7 @@ impl LifeBar {
         }
     }
 
-    /// Draws full hearts for remaining lives and empty hearts for lost ones. 
+    /// Draws full hearts for remaining lives and empty hearts for lost ones.
     pub fn draw(&self) {
         for index in 0..self.max_lives {
             let texture = if index < self.lives {
@@ -26,7 +26,8 @@ impl LifeBar {
                 self.empty_texture
             };
 
-            let x = index as f32 * texture.width();
+            let margin: f32 = 2.0;
+            let x = (index as f32).mul_add(texture.width(), margin);
             draw_texture(texture, x, 0., WHITE);
         }
     }
