@@ -54,6 +54,7 @@ async fn main() {
     let enemy_texture = load_scalable_texture("resources/enemy.png").await;
     let heart_texture = load_scalable_texture("resources/heart.png").await;
     let empty_heart_texture = load_scalable_texture("resources/empty_heart.png").await;
+    let background = load_scalable_texture("resources/background.png").await;
 
     let mut score: u32 = 0;
     let mut life_bar = LifeBar::new(LIVES, heart_texture, empty_heart_texture);
@@ -94,6 +95,7 @@ async fn main() {
 
         screen_drawer.draw_scaled(|| {
             clear_background(LIME);
+            draw_texture(background, 0., 0., WHITE);
             player.character.draw();
             enemies.iter().for_each(|enemy| enemy.character.draw());
             life_bar.draw();
