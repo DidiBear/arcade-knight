@@ -72,6 +72,39 @@ impl Game {
         }
     }
 
+    async fn launch(&mut self) {
+        loop {
+            self.menu().await;
+            let score = self.game().await;
+
+            self.max_score = self.max_score.max(score);
+        }
+    }
+
+    async fn menu(&self) {
+        loop {
+            if is_key_pressed(KeyCode::Space) {
+                return;
+            }
+
+            self.screen_drawer.draw_scaled(|| {
+                draw_texture(self.textures.background, 0., 0., WHITE);
+
+                let x = GAME_WIDTH / 2.;
+                let y = GAME_HEIGHT / 2.;
+
+                let title = "Arcade knight";
+                let score = &format!("Max score: {}", self.max_score);
+                let start = "Press space to start";
+
+                Fonts::draw_centered(title, x, y, self.fonts.sized(20));
+                Fonts::draw_centered(score, x, y + 15., self.fonts.sized(8));
+                Fonts::draw_centered(start, x, y + 50., self.fonts.sized(8));
+            });
+
+            next_frame().await;
+        }
+    }
 
     async fn game(&self) -> u32 {
         let mut score: u32 = 0;
@@ -123,6 +156,10 @@ impl Game {
                 let score = &format!("Score: {}", score);
                 Fonts::draw_left(score, GAME_WIDTH - MARGIN, MARGIN, self.fonts.sized(8));
             });
+
+            if life_bar.is_empty() {
+                return score;
+            }
 
             next_frame().await;
         }

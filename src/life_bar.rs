@@ -35,4 +35,8 @@ impl LifeBar {
     pub fn decrement(&mut self) {
         self.lives = self.lives.saturating_sub(1);
     }
+
+    pub const fn is_empty(&self) -> bool {
+        self.lives == 0
+    }
 }

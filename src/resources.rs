@@ -42,6 +42,15 @@ impl Fonts {
         }
     }
 
+    pub fn draw_centered(text: &str, x: f32, y: f32, params: TextParams) {
+        let size = measure(text, params);
+
+        let x = x - size.width / 2.;
+        let y = y - size.height / 2.;
+
+        draw_text_ex(text, x, y, params);
+    }
+
     pub fn draw_left(text: &str, x: f32, y: f32, params: TextParams) {
         let size = measure(text, params);
 
