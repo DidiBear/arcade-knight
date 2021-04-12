@@ -88,6 +88,7 @@ async fn main() {
         enemies.retain(|enemy| {
             if attack.as_ref().map_or(false, |attack| attack.kill(enemy)) {
                 score += 10;
+                spawner.delay = 1.0 / get_time().mul_add(0.1, 0.5);
                 return false;
             }
             if enemy.character.collide(&player.character) {
