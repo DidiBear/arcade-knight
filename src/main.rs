@@ -50,66 +50,82 @@ pub const LIVES: u32 = 3;
 #[macroquad::main(window_conf)]
 async fn main() {
     seed_random();
-    let textures = Textures::load().await;
-    let fonts = Fonts::load().await;
+    let mut game = Game::load().await;
 
-    let mut score: u32 = 0;
-    let mut life_bar = LifeBar::new(LIVES, textures.heart, textures.empty_heart);
+    game.launch().await;
+}
 
-    let mut player = Player::new(textures.player);
-    let mut enemies: Vec<Enemy> = Vec::new();
+struct Game {
+    textures: Textures,
+    fonts: Fonts,
+    screen_drawer: ScreenDrawer,
+    max_score: u32,
+}
 
-    let mut slash_cooldown = Cooldown::from_seconds(SLASH_COOLDOWN);
-    let mut spawner = Timer::from_seconds(INITIAL_SPAWN_DELAY);
-
-    let screen_drawer = ScreenDrawer::new(vec2(GAME_WIDTH, GAME_HEIGHT));
-
-    loop {
-        if is_key_pressed(KeyCode::Escape) {
-            break;
+impl Game {
+    async fn load() -> Self {
+        Self {
+            textures: Textures::load().await,
+            fonts: Fonts::load().await,
+            screen_drawer: ScreenDrawer::new(vec2(GAME_WIDTH, GAME_HEIGHT)),
+            max_score: 0,
         }
+    }
 
-        player.update_direction();
 
-        let attack = if is_key_pressed(KeyCode::Space) && slash_cooldown.available() {
-            slash_cooldown.start();
-            Some(player.slash_attack())
-        } else {
-            None
-        };
+    async fn game(&self) -> u32 {
+        let mut score: u32 = 0;
+        let mut life_bar = LifeBar::new(LIVES, self.textures.heart, self.textures.empty_heart);
 
-        if spawner.tick_and_finished() {
-            enemies.push(Enemy::new_random(textures.enemy));
+        let mut player = Player::new(self.textures.player);
+        let mut enemies: Vec<Enemy> = Vec::new();
+
+        let mut slash_cooldown = Cooldown::from_seconds(SLASH_COOLDOWN);
+        let mut spawner = Timer::from_seconds(INITIAL_SPAWN_DELAY);
+
+        loop {
+            player.update_direction();
+
+            let attack = if is_key_pressed(KeyCode::Space) && slash_cooldown.available() {
+                slash_cooldown.start();
+                Some(player.slash_attack())
+            } else {
+                None
+            };
+
+            if spawner.tick_and_finished() {
+                enemies.push(Enemy::new_random(self.textures.enemy));
+            }
+            enemies.iter_mut().for_each(Enemy::update);
+
+            enemies.retain(|enemy| {
+                if attack.as_ref().map_or(false, |attack| attack.kill(enemy)) {
+                    score += 10;
+                    slash_cooldown.reset();
+                    spawner.delay = 1.0 / get_time().mul_add(0.1, 0.5);
+                    return false;
+                }
+                if enemy.character.collide(&player.character) {
+                    life_bar.decrement();
+                    return false;
+                }
+                true
+            });
+
+            self.screen_drawer.draw_scaled(|| {
+                clear_background(LIME);
+                draw_texture(self.textures.background, 0., 0., WHITE);
+                player.character.draw();
+                enemies.iter().for_each(|enemy| enemy.character.draw());
+                life_bar.draw();
+                attack.as_ref().map(Slash::draw);
+
+                let score = &format!("Score: {}", score);
+                Fonts::draw_left(score, GAME_WIDTH - MARGIN, MARGIN, self.fonts.sized(8));
+            });
+
+            next_frame().await;
         }
-        enemies.iter_mut().for_each(Enemy::update);
-
-        enemies.retain(|enemy| {
-            if attack.as_ref().map_or(false, |attack| attack.kill(enemy)) {
-                score += 10;
-                slash_cooldown.reset();
-                spawner.delay = 1.0 / get_time().mul_add(0.1, 0.5);
-                return false;
-            }
-            if enemy.character.collide(&player.character) {
-                life_bar.decrement();
-                return false;
-            }
-            true
-        });
-
-        screen_drawer.draw_scaled(|| {
-            clear_background(LIME);
-            draw_texture(textures.background, 0., 0., WHITE);
-            player.character.draw();
-            enemies.iter().for_each(|enemy| enemy.character.draw());
-            life_bar.draw();
-            attack.as_ref().map(Slash::draw);
-
-            let score = &format!("Score: {}", score);
-            Fonts::draw_left(score, GAME_WIDTH - MARGIN, MARGIN, fonts.sized(8));
-        });
-
-        next_frame().await;
     }
 }
 
