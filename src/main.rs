@@ -20,7 +20,7 @@ use life_bar::LifeBar;
 use macroquad::{prelude::*, rand::srand};
 use player::{Player, Slash};
 use screen_drawer::{load_scalable_texture, ScreenDrawer};
-use timers::Timer;
+use timers::{Cooldown, Timer};
 
 mod character;
 mod enemy;
@@ -37,6 +37,8 @@ pub const GAME_HEIGHT: f32 = 250.;
 pub const ENEMY_SPEED: f32 = 40.;
 /// Initial delay between each enemy spawn.
 pub const INITIAL_SPAWN_DELAY: f64 = 1.;
+/// Duration of the cooldown between attacks.
+pub const SLASH_COOLDOWN: f64 = 0.5;
 /// Initial amount of life the player has.
 pub const LIVES: u32 = 3;
 
@@ -63,18 +65,21 @@ async fn main() {
 
     let mut player = Player::new(player_texture);
     let mut enemies: Vec<Enemy> = Vec::new();
+
+    let mut slash_cooldown = Cooldown::from_seconds(SLASH_COOLDOWN);
     let mut spawner = Timer::from_seconds(INITIAL_SPAWN_DELAY);
 
     let screen_drawer = ScreenDrawer::new(vec2(GAME_WIDTH, GAME_HEIGHT));
 
     loop {
-        if is_key_down(KeyCode::Escape) {
+        if is_key_pressed(KeyCode::Escape) {
             break;
         }
 
         player.update_direction();
 
-        let attack = if is_key_down(KeyCode::Space) {
+        let attack = if is_key_pressed(KeyCode::Space) && slash_cooldown.available() {
+            slash_cooldown.start();
             Some(player.slash_attack())
         } else {
             None
@@ -88,6 +93,7 @@ async fn main() {
         enemies.retain(|enemy| {
             if attack.as_ref().map_or(false, |attack| attack.kill(enemy)) {
                 score += 10;
+                slash_cooldown.reset();
                 spawner.delay = 1.0 / get_time().mul_add(0.1, 0.5);
                 return false;
             }
