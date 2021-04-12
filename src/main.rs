@@ -15,17 +15,19 @@
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use enemy::{Enemy, Spawner};
+use enemy::Enemy;
 use life_bar::LifeBar;
 use macroquad::{prelude::*, rand::srand};
 use player::{Player, Slash};
 use screen_drawer::{load_scalable_texture, ScreenDrawer};
+use timers::Timer;
 
 mod character;
 mod enemy;
 mod life_bar;
 mod player;
 mod screen_drawer;
+mod timers;
 
 /// Width of the game.
 pub const GAME_WIDTH: f32 = 250.;
@@ -61,7 +63,7 @@ async fn main() {
 
     let mut player = Player::new(player_texture);
     let mut enemies: Vec<Enemy> = Vec::new();
-    let mut spawner = Spawner::new(INITIAL_SPAWN_DELAY);
+    let mut spawner = Timer::from_seconds(INITIAL_SPAWN_DELAY);
 
     let screen_drawer = ScreenDrawer::new(vec2(GAME_WIDTH, GAME_HEIGHT));
 
@@ -78,7 +80,9 @@ async fn main() {
             None
         };
 
-        spawner.tick_and_spawn(|| enemies.push(Enemy::new_random(enemy_texture)));
+        if spawner.tick_and_finished() {
+            enemies.push(Enemy::new_random(enemy_texture));
+        }
         enemies.iter_mut().for_each(Enemy::update);
 
         enemies.retain(|enemy| {
