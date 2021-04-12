@@ -20,7 +20,7 @@ use enemy::Enemy;
 use life_bar::LifeBar;
 use macroquad::{prelude::*, rand::srand};
 use player::{Player, Slash};
-use resources::{load_text_params, Textures};
+use resources::{Fonts, Textures};
 use screen_drawer::ScreenDrawer;
 use timers::{Cooldown, Timer};
 
@@ -36,6 +36,8 @@ mod timers;
 pub const GAME_WIDTH: f32 = 250.;
 /// Height of the game.
 pub const GAME_HEIGHT: f32 = 250.;
+/// Margin for the score text.
+pub const MARGIN: f32 = 4.;
 /// Movement speed of enemies.
 pub const ENEMY_SPEED: f32 = 40.;
 /// Initial delay between each enemy spawn.
@@ -49,7 +51,7 @@ pub const LIVES: u32 = 3;
 async fn main() {
     seed_random();
     let textures = Textures::load().await;
-    let text_params = load_text_params().await;
+    let fonts = Fonts::load().await;
 
     let mut score: u32 = 0;
     let mut life_bar = LifeBar::new(LIVES, textures.heart, textures.empty_heart);
@@ -102,7 +104,9 @@ async fn main() {
             enemies.iter().for_each(|enemy| enemy.character.draw());
             life_bar.draw();
             attack.as_ref().map(Slash::draw);
-            draw_score(score, text_params);
+
+            let score = &format!("Score: {}", score);
+            Fonts::draw_left(score, GAME_WIDTH - MARGIN, MARGIN, fonts.sized(8));
         });
 
         next_frame().await;
@@ -116,24 +120,6 @@ fn window_conf() -> Conf {
         window_height: (GAME_HEIGHT * 3.) as i32,
         ..Conf::default()
     }
-}
-
-/// Draws the score text at the top right of the screen.
-fn draw_score(score: u32, params: TextParams) {
-    let text = format!("Score: {}", score);
-
-    let size = measure_text(
-        &text,
-        Some(params.font),
-        params.font_size,
-        params.font_scale,
-    );
-
-    let margin = 4.;
-    let x = GAME_WIDTH - size.width - margin;
-    let y = size.height + margin;
-
-    draw_text_ex(&text, x, y, params)
 }
 
 /// Seed the random generator with the current time.

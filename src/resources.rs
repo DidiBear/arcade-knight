@@ -22,11 +22,36 @@ impl Textures {
     }
 }
 
-pub async fn load_text_params() -> TextParams {
-    TextParams {
-        font: load_ttf_font("resources/Kenney Pixel Square.ttf").await,
-        font_size: 8,
-        font_scale: 1.,
-        color: WHITE,
+pub struct Fonts {
+    pub font: Font,
+}
+
+impl Fonts {
+    pub async fn load() -> Self {
+        Self {
+            font: load_ttf_font("resources/Kenney Pixel Square.ttf").await,
+        }
     }
+
+    pub const fn sized(&self, font_size: u16) -> TextParams {
+        TextParams {
+            font: self.font,
+            font_size,
+            font_scale: 1.,
+            color: WHITE,
+        }
+    }
+
+    pub fn draw_left(text: &str, x: f32, y: f32, params: TextParams) {
+        let size = measure(text, params);
+
+        let x = x - size.width;
+        let y = y + size.height;
+
+        draw_text_ex(text, x, y, params);
+    }
+}
+
+fn measure(text: &str, params: TextParams) -> TextDimensions {
+    measure_text(text, Some(params.font), params.font_size, params.font_scale)
 }
