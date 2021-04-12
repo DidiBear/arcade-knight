@@ -10,7 +10,8 @@
 #![allow(
     clippy::future_not_send,
     clippy::cast_precision_loss,
-    clippy::cast_possible_truncation
+    clippy::cast_possible_truncation,
+    clippy::eval_order_dependence
 )]
 
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -19,13 +20,15 @@ use enemy::Enemy;
 use life_bar::LifeBar;
 use macroquad::{prelude::*, rand::srand};
 use player::{Player, Slash};
-use screen_drawer::{load_scalable_texture, ScreenDrawer};
+use resources::{load_text_params, Textures};
+use screen_drawer::ScreenDrawer;
 use timers::{Cooldown, Timer};
 
 mod character;
 mod enemy;
 mod life_bar;
 mod player;
+mod resources;
 mod screen_drawer;
 mod timers;
 
@@ -45,25 +48,13 @@ pub const LIVES: u32 = 3;
 #[macroquad::main(window_conf)]
 async fn main() {
     seed_random();
-
-    let font = load_ttf_font("resources/Kenney Pixel Square.ttf").await;
-    let text_params = TextParams {
-        font_size: 8,
-        font_scale: 1.,
-        font,
-        color: WHITE,
-    };
-
-    let player_texture = load_scalable_texture("resources/player.png").await;
-    let enemy_texture = load_scalable_texture("resources/enemy.png").await;
-    let heart_texture = load_scalable_texture("resources/heart.png").await;
-    let empty_heart_texture = load_scalable_texture("resources/empty_heart.png").await;
-    let background = load_scalable_texture("resources/background.png").await;
+    let textures = Textures::load().await;
+    let text_params = load_text_params().await;
 
     let mut score: u32 = 0;
-    let mut life_bar = LifeBar::new(LIVES, heart_texture, empty_heart_texture);
+    let mut life_bar = LifeBar::new(LIVES, textures.heart, textures.empty_heart);
 
-    let mut player = Player::new(player_texture);
+    let mut player = Player::new(textures.player);
     let mut enemies: Vec<Enemy> = Vec::new();
 
     let mut slash_cooldown = Cooldown::from_seconds(SLASH_COOLDOWN);
@@ -86,7 +77,7 @@ async fn main() {
         };
 
         if spawner.tick_and_finished() {
-            enemies.push(Enemy::new_random(enemy_texture));
+            enemies.push(Enemy::new_random(textures.enemy));
         }
         enemies.iter_mut().for_each(Enemy::update);
 
@@ -106,7 +97,7 @@ async fn main() {
 
         screen_drawer.draw_scaled(|| {
             clear_background(LIME);
-            draw_texture(background, 0., 0., WHITE);
+            draw_texture(textures.background, 0., 0., WHITE);
             player.character.draw();
             enemies.iter().for_each(|enemy| enemy.character.draw());
             life_bar.draw();
