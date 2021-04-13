@@ -8,6 +8,7 @@ use crate::{
 pub struct Textures {
     pub player_atlas: TextureAtlas,
     pub enemy: Texture2D,
+    pub enemy_atlas: TextureAtlas,
     pub heart: Texture2D,
     pub empty_heart: Texture2D,
     pub background: Texture2D,
@@ -16,9 +17,11 @@ pub struct Textures {
 impl Textures {
     pub async fn load() -> Self {
         let player_texture = load_scalable_texture("resources/player_sprite.png").await;
+        let enemy_texture = load_scalable_texture("resources/enemy_sprite.png").await;
 
         Self {
             player_atlas: TextureAtlas::from_grid(player_texture, (50., 50.), 4, 5),
+            enemy_atlas: TextureAtlas::from_grid(enemy_texture, (24., 24.), 3, 4),
             enemy: load_scalable_texture("resources/enemy.png").await,
             heart: load_scalable_texture("resources/heart.png").await,
             empty_heart: load_scalable_texture("resources/empty_heart.png").await,
@@ -32,15 +35,29 @@ pub struct Animations {
     pub attack_right: Animation,
     pub attack_bottom: Animation,
     pub attack_left: Animation,
+    pub enemy_up: Animation,
+    pub enemy_right: Animation,
+    pub enemy_bottom: Animation,
+    pub enemy_left: Animation,
 }
 
 impl Animations {
     pub fn new(textures: &Textures) -> Self {
+        let Textures {
+            player_atlas,
+            enemy_atlas,
+            ..
+        } = textures;
+
         Self {
-            attack_up: Animation::new(textures.player_atlas.clone(), vec![4, 5, 6, 7], 0.05, false),
-            attack_right: Animation::new(textures.player_atlas.clone(), (8..12).collect(), 0.05, false),
-            attack_left: Animation::new(textures.player_atlas.clone(), (12..16).collect(), 0.05, false),
-            attack_bottom: Animation::new(textures.player_atlas.clone(), (16..20).collect(), 0.05, false),
+            attack_up: Animation::new(player_atlas.clone(), (4..8).collect(), 0.05, false),
+            attack_right: Animation::new(player_atlas.clone(), (8..12).collect(), 0.05, false),
+            attack_left: Animation::new(player_atlas.clone(), (12..16).collect(), 0.05, false),
+            attack_bottom: Animation::new(player_atlas.clone(), (16..20).collect(), 0.05, false),
+            enemy_up: Animation::new(enemy_atlas.clone(), vec![9, 10, 11, 10], 0.1, true),
+            enemy_right: Animation::new(enemy_atlas.clone(), vec![6, 7, 8, 7], 0.1, true),
+            enemy_left: Animation::new(enemy_atlas.clone(), vec![3, 4, 5, 4], 0.1, true),
+            enemy_bottom: Animation::new(enemy_atlas.clone(), vec![0, 1, 2, 1], 0.1, true),
         }
     }
 }
