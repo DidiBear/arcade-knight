@@ -1,14 +1,16 @@
 use macroquad::prelude::*;
 
+use crate::direction::Direction;
+
 pub struct Character {
     texture: Texture2D,
     pub body: Rect,
-    pub direction: Vec2,
+    pub direction: Direction,
 }
 
 impl Character {
     /// Creates a character with a body centered around its position.
-    pub fn new(x: f32, y: f32, direction: Vec2, texture: Texture2D) -> Self {
+    pub fn new(x: f32, y: f32, direction: Direction, texture: Texture2D) -> Self {
         let (w, h) = (texture.width(), texture.height());
 
         // Center the position in the middle of the screen
@@ -34,7 +36,9 @@ impl Character {
 
     /// Moves the body following the direction.
     pub fn move_body(&mut self, speed: f32) {
-        self.body = self.body.offset(self.direction * get_frame_time() * speed);
+        self.body = self
+            .body
+            .offset(self.direction.vector * get_frame_time() * speed);
     }
 
     /// Returns true if both characters are in collision.

@@ -16,17 +16,13 @@ impl Player {
 
     /// Updates the player's direction depending on the pressed keys.
     pub fn update_direction(&mut self) {
-        let direction = if is_key_down(KeyCode::Up) {
-            vec2(0., -1.)
-        } else if is_key_down(KeyCode::Down) {
-            vec2(0., 1.)
-        } else if is_key_down(KeyCode::Left) {
-            vec2(-1., 0.)
-        } else if is_key_down(KeyCode::Right) {
-            vec2(1., 0.)
-        } else {
-            self.character.direction
-        };
+        self.character.direction = DIRECTION_KEYS
+            .iter()
+            .filter(|(key, _)| is_key_down(*key))
+            .map(|(_, direction)| *direction)
+            .next()
+            .unwrap_or(self.character.direction);
+    }
 
         self.character.direction = direction;
     }
@@ -37,7 +33,7 @@ impl Player {
             body, direction, ..
         } = self.character;
 
-        Slash(body.offset(direction * body.size()))
+        Slash(body.offset(direction.vector * body.size() * 0.75))
     }
 }
 
