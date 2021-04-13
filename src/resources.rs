@@ -7,7 +7,6 @@ use crate::{
 
 pub struct Textures {
     pub player_atlas: TextureAtlas,
-    pub enemy: Texture2D,
     pub enemy_atlas: TextureAtlas,
     pub heart: Texture2D,
     pub empty_heart: Texture2D,
@@ -22,7 +21,6 @@ impl Textures {
         Self {
             player_atlas: TextureAtlas::from_grid(player_texture, (50., 50.), 4, 5),
             enemy_atlas: TextureAtlas::from_grid(enemy_texture, (24., 24.), 3, 4),
-            enemy: load_scalable_texture("resources/enemy.png").await,
             heart: load_scalable_texture("resources/heart.png").await,
             empty_heart: load_scalable_texture("resources/empty_heart.png").await,
             background: load_scalable_texture("resources/background.png").await,
