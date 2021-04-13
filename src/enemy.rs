@@ -15,7 +15,7 @@ pub struct Enemy {
 
 impl Enemy {
     /// Creates a random enemy in one side of the screen.
-    pub fn new_random(texture: Texture2D, animations: &Animations) -> Self {
+    pub fn new_random(w: f32, h: f32, animations: &Animations) -> Self {
         let default_values = vec![
             (DOWN, GAME_WIDTH / 2., 0., &animations.enemy_bottom), // Top
             (UP, GAME_WIDTH / 2., GAME_HEIGHT, &animations.enemy_up), // Bottom
@@ -23,11 +23,11 @@ impl Enemy {
             (RIGHT, 0., GAME_HEIGHT / 2., &animations.enemy_right), // Left
         ];
 
-        let (direction, x, y, animation) = default_values.choose().unwrap();
+        let (direction, x, y, animation) = *default_values.choose().unwrap();
 
         Self {
-            character: Character::new(*x, *y, *direction, texture),
-            animation: (*animation).clone(),
+            character: Character::new(x, y, w, h, direction),
+            animation: animation.clone(),
         }
     }
 
@@ -38,7 +38,7 @@ impl Enemy {
     }
 
     pub fn draw(&self) {
-        let Rect { x, y, .. } = self.character.body;
-        self.animation.draw_current(x, y)
+        let (x, y) = self.character.position();
+        self.animation.draw_current_centered(x, y)
     }
 }

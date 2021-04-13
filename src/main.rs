@@ -115,7 +115,7 @@ impl Game {
         let mut score: u32 = 0;
         let mut life_bar = LifeBar::new(LIVES, self.textures.heart, self.textures.empty_heart);
 
-        let mut player = Player::new(self.textures.enemy);
+        let mut player = Player::new(18., 18.);
         let mut enemies: Vec<Enemy> = Vec::new();
 
         let mut slash_cooldown = Cooldown::from_seconds(SLASH_COOLDOWN);
@@ -133,7 +133,7 @@ impl Game {
             };
 
             if spawner.tick_and_finished() {
-                enemies.push(Enemy::new_random(self.textures.enemy, &self.animations));
+                enemies.push(Enemy::new_random(18., 18., &self.animations));
             }
             enemies.iter_mut().for_each(Enemy::update);
 

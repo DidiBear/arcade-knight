@@ -16,9 +16,9 @@ pub struct Player {
 
 impl Player {
     /// Creates the player entity centered in the middle of the screen.
-    pub fn new(texture: Texture2D) -> Self {
+    pub fn new(w: f32, h: f32) -> Self {
         Self {
-            character: Character::new(GAME_WIDTH / 2., GAME_HEIGHT / 2., DOWN, texture),
+            character: Character::new(GAME_WIDTH / 2., GAME_HEIGHT / 2., w, h, DOWN),
             attacking: None,
         }
     }
@@ -57,11 +57,11 @@ impl Player {
         animation.restart();
         self.attacking = Some(animation);
 
-        Slash(body.offset(direction.vector * body.size() * 0.75))
+        Slash(body.offset(direction.vector * body.size()))
     }
 
     pub fn draw(&self, player_atlas: &TextureAtlas) {
-        let (x, y) = (GAME_WIDTH / 2., GAME_HEIGHT / 2.);
+        let (x, y) = self.character.position();
 
         if let Some(animation) = &self.attacking {
             animation.draw_current_centered(x, y);
