@@ -28,8 +28,6 @@ impl TextureAtlas {
             }
         }
 
-        // cartesian_product
-
         Self { texture, tiles }
     }
 
@@ -38,23 +36,14 @@ impl TextureAtlas {
         let tile = self.tiles.get(tile_index).expect("Tile not found");
         let (x, y) = (x - tile.w / 2., y - tile.h / 2.);
 
-        self.draw(tile, x, y);
+        draw_texture_ex(self.texture, x, y, WHITE, draw_tile_params(tile));
     }
+}
 
-    /// Draws the tile at the given index centered at the given position.
-    pub fn draw_tile(&self, tile_index: usize, x: f32, y: f32) {
-        let tile = self.tiles.get(tile_index).expect("Tile not found");
-
-        self.draw(tile, x, y);
-    }
-
-    fn draw(&self, tile: &Rect, x: f32, y: f32) {
-        let params = DrawTextureParams {
-            source: Some(*tile),
-            ..DrawTextureParams::default()
-        };
-
-        draw_texture_ex(self.texture, x, y, WHITE, params);
+fn draw_tile_params(tile: &Rect) -> DrawTextureParams {
+    DrawTextureParams {
+        source: Some(*tile),
+        ..DrawTextureParams::default()
     }
 }
 
@@ -85,14 +74,6 @@ impl Animation {
             frame_timer: Timer::from_seconds(frame_seconds),
             current_frame: 0,
         }
-    }
-
-    /// Draw the current frame of the animation at the given position.
-    pub fn draw_current(&self, x: f32, y: f32) {
-        assert!(!self.is_finished(), "Cannot draw a finished animation");
-        let tile_index = self.tile_indexes[self.current_frame]; // index checked above
-
-        self.texture_atlas.draw_tile(tile_index, x, y);
     }
 
     /// Draw the current frame of the animation centered around the given position.
