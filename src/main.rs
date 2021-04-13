@@ -157,7 +157,12 @@ impl Game {
                 player.draw(&self.textures.player_atlas);
                 enemies.iter().for_each(Enemy::draw);
                 life_bar.draw();
-                attack.as_ref().map(Slash::draw);
+
+                if cfg!(debug_assertions) {
+                    attack.as_ref().map(Slash::draw);
+                    player.character.draw_hit_box();
+                    enemies.iter().for_each(|e| e.character.draw_hit_box());
+                }
 
                 let score = &format!("Score: {}", score);
                 Fonts::draw_left(score, GAME_WIDTH - MARGIN, MARGIN, self.fonts.sized(8));
