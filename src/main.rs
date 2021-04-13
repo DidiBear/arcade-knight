@@ -20,11 +20,13 @@ use enemy::Enemy;
 use life_bar::LifeBar;
 use macroquad::{prelude::*, rand::srand};
 use player::{Player, Slash};
-use resources::{Fonts, Textures};
+use resources::{Animations, Fonts, Textures};
 use screen_drawer::ScreenDrawer;
 use timers::{Cooldown, Timer};
 
+mod animation;
 mod character;
+mod direction;
 mod enemy;
 mod life_bar;
 mod player;
@@ -58,15 +60,18 @@ async fn main() {
 struct Game {
     textures: Textures,
     fonts: Fonts,
+    animations: Animations,
     screen_drawer: ScreenDrawer,
     max_score: u32,
 }
 
 impl Game {
     async fn load() -> Self {
+        let textures = Textures::load().await;
         Self {
-            textures: Textures::load().await,
             fonts: Fonts::load().await,
+            animations: Animations::new(&textures),
+            textures,
             screen_drawer: ScreenDrawer::new(vec2(GAME_WIDTH, GAME_HEIGHT)),
             max_score: 0,
         }
@@ -110,7 +115,7 @@ impl Game {
         let mut score: u32 = 0;
         let mut life_bar = LifeBar::new(LIVES, self.textures.heart, self.textures.empty_heart);
 
-        let mut player = Player::new(self.textures.player);
+        let mut player = Player::new(self.textures.enemy);
         let mut enemies: Vec<Enemy> = Vec::new();
 
         let mut slash_cooldown = Cooldown::from_seconds(SLASH_COOLDOWN);
@@ -118,10 +123,11 @@ impl Game {
 
         loop {
             player.update_direction();
+            player.update_animation();
 
             let attack = if is_key_pressed(KeyCode::Space) && slash_cooldown.available() {
                 slash_cooldown.start();
-                Some(player.slash_attack())
+                Some(player.slash_attack(&self.animations))
             } else {
                 None
             };
@@ -148,7 +154,7 @@ impl Game {
             self.screen_drawer.draw_scaled(|| {
                 clear_background(LIME);
                 draw_texture(self.textures.background, 0., 0., WHITE);
-                player.character.draw();
+                player.draw(&self.textures.player_atlas);
                 enemies.iter().for_each(|enemy| enemy.character.draw());
                 life_bar.draw();
                 attack.as_ref().map(Slash::draw);

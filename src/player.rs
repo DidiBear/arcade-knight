@@ -1,16 +1,25 @@
 use macroquad::prelude::*;
 
-use crate::{character::Character, enemy::Enemy, GAME_HEIGHT, GAME_WIDTH};
+use crate::{
+    animation::{Animation, TextureAtlas},
+    character::Character,
+    direction::{Side, DIRECTION_KEYS, DOWN},
+    enemy::Enemy,
+    resources::Animations,
+    GAME_HEIGHT, GAME_WIDTH,
+};
 
 pub struct Player {
     pub character: Character,
+    pub attacking: Option<Animation>,
 }
 
 impl Player {
     /// Creates the player entity centered in the middle of the screen.
     pub fn new(texture: Texture2D) -> Self {
         Self {
-            character: Character::new(GAME_WIDTH / 2., GAME_HEIGHT / 2., vec2(1.0, 0.0), texture),
+            character: Character::new(GAME_WIDTH / 2., GAME_HEIGHT / 2., DOWN, texture),
+            attacking: None,
         }
     }
 
@@ -24,16 +33,41 @@ impl Player {
             .unwrap_or(self.character.direction);
     }
 
-        self.character.direction = direction;
+    /// Updates the player's direction depending on the pressed keys.
+    pub fn update_animation(&mut self) {
+        if let Some(animation) = &mut self.attacking {
+            if animation.tick().is_finished() {
+                self.attacking = None;
+            }
+        }
     }
 
     /// Returns a slash attack positioned at the player's direction   
-    pub fn slash_attack(&self) -> Slash {
+    pub fn slash_attack(&mut self, animations: &Animations) -> Slash {
         let Character {
             body, direction, ..
         } = self.character;
 
+        let mut animation = match direction.side {
+            Side::Up => animations.attack_up.clone(),
+            Side::Down => animations.attack_bottom.clone(),
+            Side::Left => animations.attack_left.clone(),
+            Side::Right => animations.attack_right.clone(),
+        };
+        animation.restart();
+        self.attacking = Some(animation);
+
         Slash(body.offset(direction.vector * body.size() * 0.75))
+    }
+
+    pub fn draw(&self, player_atlas: &TextureAtlas) {
+        let (x, y) = (GAME_WIDTH / 2., GAME_HEIGHT / 2.);
+
+        if let Some(animation) = &self.attacking {
+            animation.draw_current(x, y);
+        } else {
+            player_atlas.draw_tile_centered(self.character.direction.tile_index, x, y);
+        }
     }
 }
 

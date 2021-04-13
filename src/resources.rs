@@ -1,9 +1,12 @@
 use macroquad::prelude::*;
 
-use crate::screen_drawer::load_scalable_texture;
+use crate::{
+    animation::{Animation, TextureAtlas},
+    screen_drawer::load_scalable_texture,
+};
 
 pub struct Textures {
-    pub player: Texture2D,
+    pub player_atlas: TextureAtlas,
     pub enemy: Texture2D,
     pub heart: Texture2D,
     pub empty_heart: Texture2D,
@@ -12,12 +15,32 @@ pub struct Textures {
 
 impl Textures {
     pub async fn load() -> Self {
+        let player_texture = load_scalable_texture("resources/player_sprite.png").await;
+
         Self {
-            player: load_scalable_texture("resources/player.png").await,
+            player_atlas: TextureAtlas::from_grid(player_texture, (50., 50.), 4, 5),
             enemy: load_scalable_texture("resources/enemy.png").await,
             heart: load_scalable_texture("resources/heart.png").await,
             empty_heart: load_scalable_texture("resources/empty_heart.png").await,
             background: load_scalable_texture("resources/background.png").await,
+        }
+    }
+}
+
+pub struct Animations {
+    pub attack_up: Animation,
+    pub attack_right: Animation,
+    pub attack_bottom: Animation,
+    pub attack_left: Animation,
+}
+
+impl Animations {
+    pub fn new(textures: &Textures) -> Self {
+        Self {
+            attack_up: Animation::new(textures.player_atlas.clone(), vec![4, 5, 6, 7], 0.05, false),
+            attack_right: Animation::new(textures.player_atlas.clone(), (8..12).collect(), 0.05, false),
+            attack_left: Animation::new(textures.player_atlas.clone(), (12..16).collect(), 0.05, false),
+            attack_bottom: Animation::new(textures.player_atlas.clone(), (16..20).collect(), 0.05, false),
         }
     }
 }
