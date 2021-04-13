@@ -1,5 +1,6 @@
 use macroquad::prelude::*;
 
+#[derive(Clone)]
 pub struct Timer {
     time: f64,
     pub delay: f64,
@@ -22,6 +23,10 @@ impl Timer {
             self.time = current_time;
         }
         finished
+    }
+
+    pub fn restart(&mut self) {
+        self.time = get_time()
     }
 }
 
