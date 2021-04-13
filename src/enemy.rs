@@ -1,34 +1,44 @@
 use macroquad::{prelude::*, rand::ChooseRandom};
 
 use crate::{
+    animation::Animation,
     character::Character,
     direction::{DOWN, LEFT, RIGHT, UP},
+    resources::Animations,
     ENEMY_SPEED, GAME_HEIGHT, GAME_WIDTH,
 };
 
 pub struct Enemy {
     pub character: Character,
+    pub animation: Animation,
 }
 
 impl Enemy {
     /// Creates a random enemy in one side of the screen.
-    pub fn new_random(texture: Texture2D) -> Self {
+    pub fn new_random(texture: Texture2D, animations: &Animations) -> Self {
         let default_values = vec![
-            (DOWN, GAME_WIDTH / 2., 0.),           // Top
-            (UP, GAME_WIDTH / 2., GAME_HEIGHT),    // Bottom
-            (LEFT, GAME_WIDTH, GAME_HEIGHT / 2.0), // Right
-            (RIGHT, 0., GAME_HEIGHT / 2.),         // Left
+            (DOWN, GAME_WIDTH / 2., 0., &animations.enemy_bottom), // Top
+            (UP, GAME_WIDTH / 2., GAME_HEIGHT, &animations.enemy_up), // Bottom
+            (LEFT, GAME_WIDTH, GAME_HEIGHT / 2.0, &animations.enemy_left), // Right
+            (RIGHT, 0., GAME_HEIGHT / 2., &animations.enemy_right), // Left
         ];
 
-        let (direction, x, y) = default_values.choose().unwrap();
+        let (direction, x, y, animation) = default_values.choose().unwrap();
 
         Self {
             character: Character::new(*x, *y, *direction, texture),
+            animation: (*animation).clone(),
         }
     }
 
-    /// Moves the enemy following its direction.
+    /// Moves the enemy following its direction and update the animation.
     pub fn update(&mut self) {
         self.character.move_body(ENEMY_SPEED);
+        self.animation.tick();
+    }
+
+    pub fn draw(&self) {
+        let Rect { x, y, .. } = self.character.body;
+        self.animation.draw_current(x, y)
     }
 }

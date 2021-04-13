@@ -45,9 +45,9 @@ pub const ENEMY_SPEED: f32 = 40.;
 /// Initial delay between each enemy spawn.
 pub const INITIAL_SPAWN_DELAY: f64 = 1.;
 /// Duration of the cooldown between attacks.
-pub const SLASH_COOLDOWN: f64 = 0.5;
+pub const SLASH_COOLDOWN: f64 = 0.3;
 /// Initial amount of life the player has.
-pub const LIVES: u32 = 3;
+pub const LIVES: u32 = 5;
 
 #[macroquad::main(window_conf)]
 async fn main() {
@@ -133,7 +133,7 @@ impl Game {
             };
 
             if spawner.tick_and_finished() {
-                enemies.push(Enemy::new_random(self.textures.enemy));
+                enemies.push(Enemy::new_random(self.textures.enemy, &self.animations));
             }
             enemies.iter_mut().for_each(Enemy::update);
 
@@ -155,7 +155,7 @@ impl Game {
                 clear_background(LIME);
                 draw_texture(self.textures.background, 0., 0., WHITE);
                 player.draw(&self.textures.player_atlas);
-                enemies.iter().for_each(|enemy| enemy.character.draw());
+                enemies.iter().for_each(Enemy::draw);
                 life_bar.draw();
                 attack.as_ref().map(Slash::draw);
 
