@@ -64,7 +64,7 @@ impl Player {
         let (x, y) = (GAME_WIDTH / 2., GAME_HEIGHT / 2.);
 
         if let Some(animation) = &self.attacking {
-            animation.draw_current(x, y);
+            animation.draw_current_centered(x, y);
         } else {
             player_atlas.draw_tile_centered(self.character.direction.tile_index, x, y);
         }
