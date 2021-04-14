@@ -45,7 +45,7 @@ pub const ENEMY_SPEED: f32 = 40.;
 /// Initial delay between each enemy spawn.
 pub const INITIAL_SPAWN_DELAY: f64 = 1.;
 /// Duration of the cooldown between attacks.
-pub const SLASH_COOLDOWN: f64 = 0.3;
+pub const ATTACK_COOLDOWN: f64 = 0.3;
 /// Initial amount of life the player has.
 pub const LIVES: u32 = 5;
 
@@ -118,15 +118,15 @@ impl Game {
         let mut player = Player::new(18., 18.);
         let mut enemies: Vec<Enemy> = Vec::new();
 
-        let mut slash_cooldown = Cooldown::from_seconds(SLASH_COOLDOWN);
+        let mut attack_cooldown = Cooldown::from_seconds(ATTACK_COOLDOWN);
         let mut spawner = Timer::from_seconds(INITIAL_SPAWN_DELAY);
 
         loop {
             player.update_direction();
             player.update_attack();
 
-            if is_key_pressed(KeyCode::Space) && slash_cooldown.available() {
-                slash_cooldown.start();
+            if is_key_pressed(KeyCode::Space) && attack_cooldown.available() {
+                attack_cooldown.start();
                 player.start_attack(&self.animations);
             }
             if spawner.tick_and_finished() {
@@ -137,7 +137,7 @@ impl Game {
             enemies.iter_mut().for_each(|enemy| {
                 if player.kill(enemy) {
                     score += 10;
-                    slash_cooldown.reset();
+                    attack_cooldown.reset();
                     spawner.delay = 1.0 / get_time().mul_add(0.1, 0.5);
                     enemy.alive = false;
                 }
