@@ -4,6 +4,8 @@ use macroquad::prelude::*;
 
 use crate::{
     animation::{Animation, TextureAtlas},
+    direction::Side,
+    player::AttackAnimation,
     screen_drawer::load_scalable_texture,
 };
 
@@ -31,10 +33,7 @@ impl Textures {
 }
 
 pub struct Animations {
-    pub attack_up: Animation,
-    pub attack_right: Animation,
-    pub attack_down: Animation,
-    pub attack_left: Animation,
+    player_atlas: Rc<TextureAtlas>,
     pub enemy_up: Animation,
     pub enemy_right: Animation,
     pub enemy_down: Animation,
@@ -50,15 +49,24 @@ impl Animations {
         } = textures;
 
         Self {
-            attack_up: Animation::new(player_atlas.clone(), (4..8).collect(), 0.05, false),
-            attack_right: Animation::new(player_atlas.clone(), (8..12).collect(), 0.05, false),
-            attack_left: Animation::new(player_atlas.clone(), (12..16).collect(), 0.05, false),
-            attack_down: Animation::new(player_atlas.clone(), (16..20).collect(), 0.05, false),
+            player_atlas: player_atlas.clone(),
             enemy_up: Animation::new(enemy_atlas.clone(), vec![9, 10, 11, 10], 0.1, true),
             enemy_right: Animation::new(enemy_atlas.clone(), vec![6, 7, 8, 7], 0.1, true),
             enemy_left: Animation::new(enemy_atlas.clone(), vec![3, 4, 5, 4], 0.1, true),
             enemy_down: Animation::new(enemy_atlas.clone(), vec![0, 1, 2, 1], 0.1, true),
         }
+    }
+
+    /// Returns a player attack animation for the given side.   
+    pub fn attack(&self, side: Side) -> AttackAnimation {
+        let indexes = match side {
+            Side::Up => 4..8,
+            Side::Right => 8..12,
+            Side::Left => 12..16,
+            Side::Down => 16..20,
+        };
+
+        AttackAnimation::new(self.player_atlas.clone(), indexes)
     }
 }
 

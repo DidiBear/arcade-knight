@@ -1,9 +1,11 @@
+use std::{ops::Range, rc::Rc};
+
 use macroquad::prelude::*;
 
 use crate::{
     animation::{Animation, TextureAtlas},
     character::Character,
-    direction::{Side, DIRECTION_KEYS, DOWN},
+    direction::{DIRECTION_KEYS, DOWN},
     enemy::Enemy,
     resources::Animations,
     GAME_HEIGHT, GAME_WIDTH,
@@ -11,7 +13,7 @@ use crate::{
 
 pub struct Player {
     pub character: Character,
-    pub attacking: Option<Animation>,
+    pub attacking: Option<AttackAnimation>,
 }
 
 impl Player {
@@ -33,55 +35,53 @@ impl Player {
             .unwrap_or(self.character.direction);
     }
 
-    /// Updates the player's direction depending on the pressed keys.
-    pub fn update_animation(&mut self) {
+    /// Starts the animation of an attack to the current direction.
+    pub fn start_attack(&mut self, animations: &Animations) {
+        self.attacking = Some(animations.attack(self.character.direction.side));
+    }
+
+    /// Updates the animation of the attack.
+    pub fn update_attack(&mut self) {
         if let Some(animation) = &mut self.attacking {
-            if animation.tick().is_finished() {
+            if animation.0.tick().is_finished() {
                 self.attacking = None;
             }
         }
     }
 
-    /// Returns a slash attack positioned at the player's direction   
-    pub fn slash_attack(&mut self, animations: &Animations) -> Slash {
+    /// Returns true if the player kills the given enemy with its attack.   
+    pub fn kill(&self, enemy: &Enemy) -> bool {
         let Character {
             body, direction, ..
         } = self.character;
 
-        let mut animation = match direction.side {
-            Side::Up => animations.attack_up.clone(),
-            Side::Down => animations.attack_down.clone(),
-            Side::Left => animations.attack_left.clone(),
-            Side::Right => animations.attack_right.clone(),
-        };
-        animation.restart();
-        self.attacking = Some(animation);
-
-        Slash(body.offset(direction.vector * body.size()))
+        self.attacking
+            .as_ref()
+            .filter(|attack| attack.is_attack_frame())
+            .map(|_| body.offset(direction.vector * body.size()))
+            .map_or(false, |slash| slash.overlaps(&enemy.character.body))
     }
 
     pub fn draw(&self, player_atlas: &TextureAtlas) {
         let (x, y) = self.character.position();
 
         if let Some(animation) = &self.attacking {
-            animation.draw_current_centered(x, y);
+            animation.0.draw_current_centered(x, y);
         } else {
             player_atlas.draw_tile_centered(self.character.direction.tile_index, x, y);
         }
     }
 }
 
-/// A slash attack.
-pub struct Slash(Rect);
+#[derive(Clone)]
+pub struct AttackAnimation(Animation);
 
-impl Slash {
-    /// Returns true if the slash attack kill the given character.
-    pub fn kill(&self, enemy: &Enemy) -> bool {
-        self.0.overlaps(&enemy.character.body)
+impl AttackAnimation {
+    pub fn new(player_atlas: Rc<TextureAtlas>, indexes: Range<usize>) -> Self {
+        Self(Animation::new(player_atlas, indexes.collect(), 0.05, false))
     }
 
-    pub fn draw(&self) {
-        let Rect { x, y, w, h } = self.0;
-        draw_rectangle(x, y, w, h, BLUE);
+    pub const fn is_attack_frame(&self) -> bool {
+        self.0.current_frame == 2 // The third frame is when the sword is the farthest
     }
 }

@@ -54,7 +54,7 @@ pub struct Animation {
     /// Indexes of the tiles in the atlas composing the animation.  
     tile_indexes: Vec<usize>,
     /// Index of the current frame.
-    current_frame: usize,
+    pub current_frame: usize,
     /// Timer keeping track of the frame durations.
     frame_timer: Timer,
     /// Whether or not the animation is repeating infinitely.

@@ -19,7 +19,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use enemy::Enemy;
 use life_bar::LifeBar;
 use macroquad::{prelude::*, rand::srand};
-use player::{Player, Slash};
+use player::Player;
 use resources::{Animations, Fonts, Textures};
 use screen_drawer::ScreenDrawer;
 use timers::{Cooldown, Timer};
@@ -123,22 +123,19 @@ impl Game {
 
         loop {
             player.update_direction();
-            player.update_animation();
+            player.update_attack();
 
-            let attack = if is_key_pressed(KeyCode::Space) && slash_cooldown.available() {
+            if is_key_pressed(KeyCode::Space) && slash_cooldown.available() {
                 slash_cooldown.start();
-                Some(player.slash_attack(&self.animations))
-            } else {
-                None
-            };
-
+                player.start_attack(&self.animations);
+            }
             if spawner.tick_and_finished() {
                 enemies.push(Enemy::new_random(18., 18., &self.animations));
             }
             enemies.iter_mut().for_each(Enemy::update);
 
             enemies.iter_mut().for_each(|enemy| {
-                if attack.as_ref().map_or(false, |attack| attack.kill(enemy)) {
+                if player.kill(enemy) {
                     score += 10;
                     slash_cooldown.reset();
                     spawner.delay = 1.0 / get_time().mul_add(0.1, 0.5);
@@ -160,7 +157,6 @@ impl Game {
                 life_bar.draw();
 
                 if cfg!(debug_assertions) {
-                    attack.as_ref().map(Slash::draw);
                     player.character.draw_hit_box();
                     enemies.iter().for_each(|e| e.character.draw_hit_box());
                 }
