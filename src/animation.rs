@@ -10,6 +10,7 @@ pub struct TextureAtlas {
 }
 
 impl TextureAtlas {
+    /// Creates atlas with all the tiles indexes following the order in the grid.
     pub fn from_grid(
         texture: Texture2D,
         tile_size: (f32, f32),
@@ -18,8 +19,8 @@ impl TextureAtlas {
     ) -> Self {
         let (w, h) = tile_size;
 
-        assert!((columns as f32) * w <= texture.width());
-        assert!((rows as f32) * h <= texture.height());
+        assert!((columns as f32) * w <= texture.width(), "Too many columns");
+        assert!((rows as f32) * h <= texture.height(), "Too many rows");
 
         let mut tiles = Vec::new();
         for y in 0..rows {
