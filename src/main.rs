@@ -132,9 +132,10 @@ impl Game {
             if spawner.tick_and_finished() {
                 enemies.push(Enemy::new_random(18., 18., &self.animations));
             }
-            enemies.iter_mut().for_each(Enemy::update);
 
-            enemies.iter_mut().for_each(|enemy| {
+            for enemy in &mut enemies {
+                enemy.update();
+
                 if player.kill(enemy) {
                     score += 10;
                     attack_cooldown.reset();
@@ -145,7 +146,7 @@ impl Game {
                     life_bar.decrement();
                     enemy.alive = false;
                 }
-            });
+            }
 
             enemies.retain(|enemy| enemy.alive);
 
