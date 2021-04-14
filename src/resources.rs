@@ -33,11 +33,11 @@ impl Textures {
 pub struct Animations {
     pub attack_up: Animation,
     pub attack_right: Animation,
-    pub attack_bottom: Animation,
+    pub attack_down: Animation,
     pub attack_left: Animation,
     pub enemy_up: Animation,
     pub enemy_right: Animation,
-    pub enemy_bottom: Animation,
+    pub enemy_down: Animation,
     pub enemy_left: Animation,
 }
 
@@ -53,11 +53,11 @@ impl Animations {
             attack_up: Animation::new(player_atlas.clone(), (4..8).collect(), 0.05, false),
             attack_right: Animation::new(player_atlas.clone(), (8..12).collect(), 0.05, false),
             attack_left: Animation::new(player_atlas.clone(), (12..16).collect(), 0.05, false),
-            attack_bottom: Animation::new(player_atlas.clone(), (16..20).collect(), 0.05, false),
+            attack_down: Animation::new(player_atlas.clone(), (16..20).collect(), 0.05, false),
             enemy_up: Animation::new(enemy_atlas.clone(), vec![9, 10, 11, 10], 0.1, true),
             enemy_right: Animation::new(enemy_atlas.clone(), vec![6, 7, 8, 7], 0.1, true),
             enemy_left: Animation::new(enemy_atlas.clone(), vec![3, 4, 5, 4], 0.1, true),
-            enemy_bottom: Animation::new(enemy_atlas.clone(), vec![0, 1, 2, 1], 0.1, true),
+            enemy_down: Animation::new(enemy_atlas.clone(), vec![0, 1, 2, 1], 0.1, true),
         }
     }
 }

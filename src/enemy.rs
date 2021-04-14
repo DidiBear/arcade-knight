@@ -18,7 +18,7 @@ impl Enemy {
     /// Creates a random enemy in one side of the screen.
     pub fn new_random(w: f32, h: f32, animations: &Animations) -> Self {
         let default_values = vec![
-            (DOWN, GAME_WIDTH / 2., 0., &animations.enemy_bottom), // Top
+            (DOWN, GAME_WIDTH / 2., 0., &animations.enemy_down), // Top
             (UP, GAME_WIDTH / 2., GAME_HEIGHT, &animations.enemy_up), // Bottom
             (LEFT, GAME_WIDTH, GAME_HEIGHT / 2.0, &animations.enemy_left), // Right
             (RIGHT, 0., GAME_HEIGHT / 2., &animations.enemy_right), // Left

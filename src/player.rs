@@ -50,7 +50,7 @@ impl Player {
 
         let mut animation = match direction.side {
             Side::Up => animations.attack_up.clone(),
-            Side::Down => animations.attack_bottom.clone(),
+            Side::Down => animations.attack_down.clone(),
             Side::Left => animations.attack_left.clone(),
             Side::Right => animations.attack_right.clone(),
         };
