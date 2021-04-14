@@ -27,12 +27,14 @@ impl Player {
 
     /// Updates the player's direction depending on the pressed keys.
     pub fn update_direction(&mut self) {
-        self.character.direction = DIRECTION_KEYS
+        if let Some(direction) = DIRECTION_KEYS
             .iter()
             .filter(|(key, _)| is_key_down(*key))
             .map(|(_, direction)| *direction)
             .next()
-            .unwrap_or(self.character.direction);
+        {
+            self.character.direction = direction
+        }
     }
 
     /// Starts the animation of an attack to the current direction.
