@@ -81,7 +81,6 @@ const fn idle_player_tile_index(direction: Direction) -> usize {
     }
 }
 
-#[derive(Clone)]
 pub struct AttackAnimation(Animation);
 
 impl AttackAnimation {

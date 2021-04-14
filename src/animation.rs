@@ -49,7 +49,6 @@ fn draw_tile_params(tile: &Rect) -> DrawTextureParams {
     }
 }
 
-#[derive(Clone)]
 pub struct Animation {
     texture_atlas: Rc<TextureAtlas>,
     /// Indexes of the tiles in the atlas composing the animation.  

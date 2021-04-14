@@ -1,6 +1,5 @@
 use macroquad::prelude::*;
 
-#[derive(Clone)]
 pub struct Timer {
     time: f64,
     pub delay: f64,
