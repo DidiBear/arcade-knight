@@ -1,8 +1,9 @@
+use std::rc::Rc;
+
 use macroquad::prelude::*;
 
 use crate::timers::Timer;
 
-#[derive(Clone)]
 pub struct TextureAtlas {
     texture: Texture2D,
     tiles: Vec<Rect>,
@@ -49,7 +50,7 @@ fn draw_tile_params(tile: &Rect) -> DrawTextureParams {
 
 #[derive(Clone)]
 pub struct Animation {
-    texture_atlas: TextureAtlas,
+    texture_atlas: Rc<TextureAtlas>,
     /// Indexes of the tiles in the atlas composing the animation.  
     tile_indexes: Vec<usize>,
     /// Index of the current frame.
@@ -62,7 +63,7 @@ pub struct Animation {
 
 impl Animation {
     pub fn new(
-        texture_atlas: TextureAtlas,
+        texture_atlas: Rc<TextureAtlas>,
         tile_indexes: Vec<usize>,
         frame_seconds: f64,
         repeating: bool,

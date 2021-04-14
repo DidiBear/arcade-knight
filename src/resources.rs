@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use macroquad::prelude::*;
 
 use crate::{
@@ -6,8 +8,8 @@ use crate::{
 };
 
 pub struct Textures {
-    pub player_atlas: TextureAtlas,
-    pub enemy_atlas: TextureAtlas,
+    pub player_atlas: Rc<TextureAtlas>,
+    pub enemy_atlas: Rc<TextureAtlas>,
     pub heart: Texture2D,
     pub empty_heart: Texture2D,
     pub background: Texture2D,
@@ -19,8 +21,8 @@ impl Textures {
         let enemy_texture = load_scalable_texture("resources/enemy_sprite.png").await;
 
         Self {
-            player_atlas: TextureAtlas::from_grid(player_texture, (50., 50.), 4, 5),
-            enemy_atlas: TextureAtlas::from_grid(enemy_texture, (24., 24.), 3, 4),
+            player_atlas: Rc::new(TextureAtlas::from_grid(player_texture, (50., 50.), 4, 5)),
+            enemy_atlas: Rc::new(TextureAtlas::from_grid(enemy_texture, (24., 24.), 3, 4)),
             heart: load_scalable_texture("resources/heart.png").await,
             empty_heart: load_scalable_texture("resources/empty_heart.png").await,
             background: load_scalable_texture("resources/background.png").await,
