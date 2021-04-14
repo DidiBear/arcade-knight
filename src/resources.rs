@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 
 use crate::{
     animation::{Animation, TextureAtlas},
-    direction::Side,
+    direction::Direction,
     player::AttackAnimation,
     screen_drawer::load_scalable_texture,
 };
@@ -45,25 +45,25 @@ impl Animations {
         }
     }
 
-    /// Returns a player attack animation for the given side.   
-    pub fn player_attack(&self, side: Side) -> AttackAnimation {
-        let indexes = match side {
-            Side::Up => 4..8,
-            Side::Right => 8..12,
-            Side::Left => 12..16,
-            Side::Down => 16..20,
+    /// Returns a player attack animation for the given direction.   
+    pub fn player_attack(&self, direction: Direction) -> AttackAnimation {
+        let indexes = match direction {
+            Direction::Up => 4..8,
+            Direction::Right => 8..12,
+            Direction::Left => 12..16,
+            Direction::Down => 16..20,
         };
 
         AttackAnimation::new(self.player_atlas.clone(), indexes)
     }
 
-    /// Returns an enemy walking animation for the given side.   
-    pub fn enemy_walking(&self, side: Side) -> Animation {
-        let indexes = match side {
-            Side::Up => vec![9, 10, 11, 10],
-            Side::Right => vec![6, 7, 8, 7],
-            Side::Left => vec![3, 4, 5, 4],
-            Side::Down => vec![0, 1, 2, 1],
+    /// Returns an enemy walking animation for the given direction.   
+    pub fn enemy_walking(&self, direction: Direction) -> Animation {
+        let indexes = match direction {
+            Direction::Up => vec![9, 10, 11, 10],
+            Direction::Right => vec![6, 7, 8, 7],
+            Direction::Left => vec![3, 4, 5, 4],
+            Direction::Down => vec![0, 1, 2, 1],
         };
 
         Animation::new(self.enemy_atlas.clone(), indexes, 0.1, true)

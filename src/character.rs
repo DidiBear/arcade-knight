@@ -32,7 +32,7 @@ impl Character {
 
     /// Moves the body following the direction.
     pub fn move_body(&mut self, speed: f32) {
-        let translation = self.direction.vector * get_frame_time() * speed;
+        let translation = Vec2::from(self.direction) * get_frame_time() * speed;
         self.body = self.body.offset(translation);
     }
 

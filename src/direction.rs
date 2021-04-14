@@ -1,44 +1,42 @@
 use macroquad::prelude::*;
 
 #[derive(Clone, Copy)]
-pub enum Side {
+pub enum Direction {
     Up,
     Right,
     Down,
     Left,
 }
 
-#[derive(Clone, Copy)]
-pub struct Direction {
-    pub side: Side,
-    pub tile_index: usize,
-    pub vector: Vec2,
+#[allow(clippy::enum_glob_use)]
+use Direction::*;
+
+impl Direction {
+    pub fn iter() -> impl Iterator<Item = Self> {
+        [Up, Right, Down, Left].iter().copied()
+    }
 }
 
-pub const UP: Direction = Direction {
-    side: Side::Up,
-    tile_index: 0,
-    vector: Vec2 { x: 0., y: -1. },
-};
-pub const RIGHT: Direction = Direction {
-    side: Side::Right,
-    tile_index: 1,
-    vector: Vec2 { x: 1., y: 0. },
-};
-pub const DOWN: Direction = Direction {
-    side: Side::Down,
-    tile_index: 2,
-    vector: Vec2 { x: 0., y: 1. },
-};
-pub const LEFT: Direction = Direction {
-    side: Side::Left,
-    tile_index: 3,
-    vector: Vec2 { x: -1., y: 0. },
-};
+impl From<Direction> for Vec2 {
+    fn from(direction: Direction) -> Self {
+        let (x, y) = match direction {
+            Up => (0., -1.),
+            Right => (1., 0.),
+            Down => (0., 1.),
+            Left => (-1., 0.),
+        };
 
-pub const DIRECTION_KEYS: [(KeyCode, Direction); 4] = [
-    (KeyCode::Up, UP),
-    (KeyCode::Down, DOWN),
-    (KeyCode::Left, LEFT),
-    (KeyCode::Right, RIGHT),
-];
+        Self { x, y }
+    }
+}
+
+impl From<Direction> for KeyCode {
+    fn from(direction: Direction) -> Self {
+        match direction {
+            Up => Self::Up,
+            Right => Self::Right,
+            Down => Self::Down,
+            Left => Self::Left,
+        }
+    }
+}
