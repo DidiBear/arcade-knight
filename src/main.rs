@@ -14,8 +14,6 @@
     clippy::eval_order_dependence
 )]
 
-use std::time::{SystemTime, UNIX_EPOCH};
-
 use enemy::Enemy;
 use life_bar::LifeBar;
 use macroquad::{prelude::*, rand::srand};
@@ -51,7 +49,6 @@ pub const LIVES: u32 = 5;
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    seed_random();
     let mut game = Game::load().await;
 
     game.launch().await;
@@ -112,6 +109,8 @@ impl Game {
     }
 
     async fn game(&self) -> u32 {
+        srand(get_time().to_bits());
+
         let mut score: u32 = 0;
         let mut life_bar = LifeBar::new(LIVES, self.textures.heart, self.textures.empty_heart);
 
@@ -182,14 +181,4 @@ fn window_conf() -> Conf {
         window_height: (GAME_HEIGHT * 3.) as i32,
         ..Conf::default()
     }
-}
-
-/// Seed the random generator with the current time.
-fn seed_random() {
-    let current_time = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs();
-
-    srand(current_time);
 }
