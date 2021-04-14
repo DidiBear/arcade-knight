@@ -11,6 +11,7 @@ use crate::{
 pub struct Enemy {
     pub character: Character,
     pub animation: Animation,
+    pub alive: bool,
 }
 
 impl Enemy {
@@ -28,6 +29,7 @@ impl Enemy {
         Self {
             character: Character::new(x, y, w, h, direction),
             animation: animation.clone(),
+            alive: true,
         }
     }
 

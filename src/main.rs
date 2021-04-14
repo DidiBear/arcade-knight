@@ -137,19 +137,20 @@ impl Game {
             }
             enemies.iter_mut().for_each(Enemy::update);
 
-            enemies.retain(|enemy| {
+            enemies.iter_mut().for_each(|enemy| {
                 if attack.as_ref().map_or(false, |attack| attack.kill(enemy)) {
                     score += 10;
                     slash_cooldown.reset();
                     spawner.delay = 1.0 / get_time().mul_add(0.1, 0.5);
-                    return false;
+                    enemy.alive = false;
                 }
                 if enemy.character.collide(&player.character) {
                     life_bar.decrement();
-                    return false;
+                    enemy.alive = false;
                 }
-                true
             });
+
+            enemies.retain(|enemy| enemy.alive);
 
             self.screen_drawer.draw_scaled(|| {
                 clear_background(LIME);
