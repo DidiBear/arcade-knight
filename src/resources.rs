@@ -34,31 +34,19 @@ impl Textures {
 
 pub struct Animations {
     player_atlas: Rc<TextureAtlas>,
-    pub enemy_up: Animation,
-    pub enemy_right: Animation,
-    pub enemy_down: Animation,
-    pub enemy_left: Animation,
+    enemy_atlas: Rc<TextureAtlas>,
 }
 
 impl Animations {
     pub fn new(textures: &Textures) -> Self {
-        let Textures {
-            player_atlas,
-            enemy_atlas,
-            ..
-        } = textures;
-
         Self {
-            player_atlas: player_atlas.clone(),
-            enemy_up: Animation::new(enemy_atlas.clone(), vec![9, 10, 11, 10], 0.1, true),
-            enemy_right: Animation::new(enemy_atlas.clone(), vec![6, 7, 8, 7], 0.1, true),
-            enemy_left: Animation::new(enemy_atlas.clone(), vec![3, 4, 5, 4], 0.1, true),
-            enemy_down: Animation::new(enemy_atlas.clone(), vec![0, 1, 2, 1], 0.1, true),
+            player_atlas: textures.player_atlas.clone(),
+            enemy_atlas: textures.enemy_atlas.clone(),
         }
     }
 
     /// Returns a player attack animation for the given side.   
-    pub fn attack(&self, side: Side) -> AttackAnimation {
+    pub fn player_attack(&self, side: Side) -> AttackAnimation {
         let indexes = match side {
             Side::Up => 4..8,
             Side::Right => 8..12,
@@ -67,6 +55,18 @@ impl Animations {
         };
 
         AttackAnimation::new(self.player_atlas.clone(), indexes)
+    }
+
+    /// Returns an enemy walking animation for the given side.   
+    pub fn enemy_walking(&self, side: Side) -> Animation {
+        let indexes = match side {
+            Side::Up => vec![9, 10, 11, 10],
+            Side::Right => vec![6, 7, 8, 7],
+            Side::Left => vec![3, 4, 5, 4],
+            Side::Down => vec![0, 1, 2, 1],
+        };
+
+        Animation::new(self.enemy_atlas.clone(), indexes, 0.1, true)
     }
 }
 

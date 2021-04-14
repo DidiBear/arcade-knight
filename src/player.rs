@@ -39,7 +39,7 @@ impl Player {
 
     /// Starts the animation of an attack to the current direction.
     pub fn start_attack(&mut self, animations: &Animations) {
-        self.attacking = Some(animations.attack(self.character.direction.side));
+        self.attacking = Some(animations.player_attack(self.character.direction.side));
     }
 
     /// Updates the animation of the attack.

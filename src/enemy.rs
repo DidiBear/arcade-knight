@@ -3,7 +3,7 @@ use macroquad::{prelude::*, rand::ChooseRandom};
 use crate::{
     animation::Animation,
     character::Character,
-    direction::{DOWN, LEFT, RIGHT, UP},
+    direction::{Side, DOWN, LEFT, RIGHT, UP},
     resources::Animations,
     ENEMY_SPEED, GAME_HEIGHT, GAME_WIDTH,
 };
@@ -17,18 +17,19 @@ pub struct Enemy {
 impl Enemy {
     /// Creates a random enemy in one side of the screen.
     pub fn new_random(w: f32, h: f32, animations: &Animations) -> Self {
-        let default_values = vec![
-            (DOWN, GAME_WIDTH / 2., 0., &animations.enemy_down), // Top
-            (UP, GAME_WIDTH / 2., GAME_HEIGHT, &animations.enemy_up), // Bottom
-            (LEFT, GAME_WIDTH, GAME_HEIGHT / 2.0, &animations.enemy_left), // Right
-            (RIGHT, 0., GAME_HEIGHT / 2., &animations.enemy_right), // Left
-        ];
+        let sides = vec![Side::Up, Side::Down, Side::Left, Side::Right];
+        let direction_side = *sides.choose().unwrap();
 
-        let (direction, x, y, animation) = *default_values.choose().unwrap();
+        let (direction, x, y) = match direction_side {
+            Side::Down => (DOWN, GAME_WIDTH / 2., 0.),           // Top
+            Side::Up => (UP, GAME_WIDTH / 2., GAME_HEIGHT),      // Bottom
+            Side::Left => (LEFT, GAME_WIDTH, GAME_HEIGHT / 2.0), // Right
+            Side::Right => (RIGHT, 0., GAME_HEIGHT / 2.),        // Left
+        };
 
         Self {
             character: Character::new(x, y, w, h, direction),
-            animation: animation.clone(),
+            animation: animations.enemy_walking(direction_side),
             alive: true,
         }
     }
