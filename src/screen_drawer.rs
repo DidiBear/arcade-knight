@@ -8,14 +8,14 @@ pub struct ScreenDrawer {
 }
 
 impl ScreenDrawer {
-    pub fn new(game_size: Vec2) -> Self {
+    pub fn new(game_width: f32, game_height: f32) -> Self {
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-        let render_target = render_target(game_size.x as u32, game_size.y as u32);
+        let render_target = render_target(game_width as u32, game_height as u32);
         set_texture_filter(render_target.texture, FilterMode::Nearest);
 
         Self {
             render_target,
-            game_size,
+            game_size: vec2(game_width, game_height),
         }
     }
 
@@ -44,7 +44,7 @@ impl ScreenDrawer {
     }
 }
 
-/// Load a texture that will be scaled to the screen.
+/// Loads a texture that will be scaled to the screen.
 pub async fn load_scalable_texture(file_name: &str) -> Texture2D {
     let texture = load_texture(file_name).await;
     set_texture_filter(texture, FilterMode::Nearest); // scale pixels without smoothing

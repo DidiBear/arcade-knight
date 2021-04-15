@@ -69,7 +69,7 @@ impl Game {
             fonts: Fonts::load().await,
             animations: Animations::new(&textures),
             textures,
-            screen_drawer: ScreenDrawer::new(vec2(GAME_WIDTH, GAME_HEIGHT)),
+            screen_drawer: ScreenDrawer::new(GAME_WIDTH, GAME_HEIGHT),
             max_score: 0,
         }
     }
