@@ -1,5 +1,7 @@
 use macroquad::prelude::*;
 
+use crate::resources::Textures;
+
 pub struct LifeBar {
     max_lives: u32,
     lives: u32,
@@ -8,12 +10,12 @@ pub struct LifeBar {
 }
 
 impl LifeBar {
-    pub const fn new(max_lives: u32, full_texture: Texture2D, empty_texture: Texture2D) -> Self {
+    pub const fn new(max_lives: u32, textures: &Textures) -> Self {
         Self {
             max_lives,
             lives: max_lives,
-            full_texture,
-            empty_texture,
+            full_texture: textures.heart,
+            empty_texture: textures.empty_heart,
         }
     }
 

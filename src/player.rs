@@ -7,21 +7,23 @@ use crate::{
     character::Character,
     direction::Direction,
     enemy::Enemy,
-    resources::Animations,
+    resources::{Animations, Textures},
     GAME_HEIGHT, GAME_WIDTH,
 };
 
 pub struct Player {
     pub character: Character,
     attacking: Option<AttackAnimation>,
+    player_atlas: Rc<TextureAtlas>,
 }
 
 impl Player {
     /// Creates the player entity centered in the middle of the screen.
-    pub fn new(w: f32, h: f32) -> Self {
+    pub fn new(w: f32, h: f32, textures: &Textures) -> Self {
         Self {
             character: Character::new(GAME_WIDTH / 2., GAME_HEIGHT / 2., w, h, Direction::Down),
             attacking: None,
+            player_atlas: textures.player_atlas.clone(),
         }
     }
 
@@ -59,25 +61,25 @@ impl Player {
             .map_or(false, |slash| slash.overlaps(&enemy.character.body))
     }
 
-    pub fn draw(&self, player_atlas: &TextureAtlas) {
+    /// Draws the player either as idle of in an animation.
+    pub fn draw(&self) {
         let (x, y) = self.character.position();
 
         if let Some(animation) = &self.attacking {
             animation.0.draw_current_centered(x, y);
         } else {
-            let tile_index = idle_player_tile_index(self.character.direction);
-            player_atlas.draw_tile_centered(tile_index, x, y);
+            self.draw_idle(x, y);
         }
     }
-}
 
-/// Returns the index of the idle player in the texture atlas.
-const fn idle_player_tile_index(direction: Direction) -> usize {
-    match direction {
-        Direction::Up => 0,
-        Direction::Right => 1,
-        Direction::Down => 2,
-        Direction::Left => 3,
+    fn draw_idle(&self, x: f32, y: f32) {
+        let tile_index = match self.character.direction {
+            Direction::Up => 0,
+            Direction::Right => 1,
+            Direction::Down => 2,
+            Direction::Left => 3,
+        };
+        self.player_atlas.draw_tile_centered(tile_index, x, y);
     }
 }
 

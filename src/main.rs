@@ -110,9 +110,9 @@ impl Game {
         srand(get_time().to_bits());
 
         let mut score: u32 = 0;
-        let mut life_bar = LifeBar::new(LIVES, self.textures.heart, self.textures.empty_heart);
+        let mut life_bar = LifeBar::new(LIVES, &self.textures);
 
-        let mut player = Player::new(18., 18.);
+        let mut player = Player::new(18., 18., &self.textures);
         let mut enemies: Vec<Enemy> = Vec::new();
 
         let mut attack_cooldown = Cooldown::from_seconds(ATTACK_COOLDOWN);
@@ -150,7 +150,7 @@ impl Game {
             self.screen_drawer.draw_scaled(|| {
                 clear_background(LIME);
                 draw_texture(self.textures.background, 0., 0., WHITE);
-                player.draw(&self.textures.player_atlas);
+                player.draw();
                 enemies.iter().for_each(Enemy::draw);
                 life_bar.draw();
 
