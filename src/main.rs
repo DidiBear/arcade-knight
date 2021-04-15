@@ -49,9 +49,7 @@ pub const LIVES: u32 = 5;
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut game = Game::load().await;
-
-    game.launch().await;
+    Game::load().await.start().await;
 }
 
 struct Game {
@@ -74,7 +72,7 @@ impl Game {
         }
     }
 
-    async fn launch(&mut self) {
+    async fn start(&mut self) {
         loop {
             self.menu().await;
             let score = self.game().await;
@@ -118,27 +116,27 @@ impl Game {
         let mut enemies: Vec<Enemy> = Vec::new();
 
         let mut attack_cooldown = Cooldown::from_seconds(ATTACK_COOLDOWN);
-        let mut spawner = Timer::from_seconds(INITIAL_SPAWN_DELAY);
+        let mut enemy_spawner = Timer::from_seconds(INITIAL_SPAWN_DELAY);
 
         loop {
             player.update_direction();
-            player.update_attack();
+            player.animate_attack();
 
             if is_key_pressed(KeyCode::Space) && attack_cooldown.available() {
                 attack_cooldown.start();
                 player.start_attack(&self.animations);
             }
-            if spawner.tick_and_finished() {
+            if enemy_spawner.tick_and_finished() {
                 enemies.push(Enemy::new_random(18., 18., &self.animations));
             }
 
             for enemy in &mut enemies {
-                enemy.update();
+                enemy.move_and_animate();
 
                 if player.kill(enemy) {
                     score += 10;
                     attack_cooldown.reset();
-                    spawner.delay = 1.0 / get_time().mul_add(0.1, 0.5);
+                    enemy_spawner.delay = 1.0 / get_time().mul_add(0.1, 0.5);
                     enemy.alive = false;
                 }
                 if enemy.character.collide(&player.character) {

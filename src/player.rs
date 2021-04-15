@@ -13,7 +13,7 @@ use crate::{
 
 pub struct Player {
     pub character: Character,
-    pub attacking: Option<AttackAnimation>,
+    attacking: Option<AttackAnimation>,
 }
 
 impl Player {
@@ -38,7 +38,7 @@ impl Player {
     }
 
     /// Updates the animation of the attack.
-    pub fn update_attack(&mut self) {
+    pub fn animate_attack(&mut self) {
         if let Some(animation) = &mut self.attacking {
             if animation.0.tick().is_finished() {
                 self.attacking = None;

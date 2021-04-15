@@ -12,7 +12,7 @@ pub struct Enemy {
 }
 
 impl Enemy {
-    /// Creates a random enemy in one side of the screen.
+    /// Creates a random enemy placed in one side of the screen.
     pub fn new_random(w: f32, h: f32, animations: &Animations) -> Self {
         let directions: Vec<_> = Direction::iter().collect();
         let direction = *directions.choose().unwrap();
@@ -32,7 +32,7 @@ impl Enemy {
     }
 
     /// Moves the enemy following its direction and update the animation.
-    pub fn update(&mut self) {
+    pub fn move_and_animate(&mut self) {
         self.character.move_body(ENEMY_SPEED);
         self.animation.tick();
     }
