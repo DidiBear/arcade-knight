@@ -112,7 +112,7 @@ impl Game {
         let mut score: u32 = 0;
         let mut life_bar = LifeBar::new(LIVES, &self.textures);
 
-        let mut player = Player::new(18., 18., &self.textures);
+        let mut player = Player::new(12., 12., &self.textures);
         let mut enemies: Vec<Enemy> = Vec::new();
 
         let mut attack_cooldown = Cooldown::from_seconds(ATTACK_COOLDOWN);
@@ -127,7 +127,7 @@ impl Game {
                 player.start_attack(&self.animations);
             }
             if enemy_spawner.tick_and_finished() {
-                enemies.push(Enemy::new_random(18., 18., &self.animations));
+                enemies.push(Enemy::new_random(16., 16., &self.animations));
             }
 
             for enemy in &mut enemies {
@@ -150,11 +150,14 @@ impl Game {
             self.screen_drawer.draw_scaled(|| {
                 clear_background(LIME);
                 draw_texture(self.textures.background, 0., 0., WHITE);
+                let Rect { x, y, w, h } = player.slash_attack();
+                draw_rectangle(x, y, w, h, SKYBLUE);
                 player.draw();
                 enemies.iter().for_each(Enemy::draw);
                 life_bar.draw();
 
                 if cfg!(debug_assertions) {
+
                     player.character.draw_hit_box();
                     enemies.iter().for_each(|e| e.character.draw_hit_box());
                 }

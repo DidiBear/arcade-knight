@@ -50,15 +50,40 @@ impl Player {
 
     /// Returns true if the player kills the given enemy with its attack.   
     pub fn kill(&self, enemy: &Enemy) -> bool {
+        self.attacking
+            .as_ref()
+            .filter(|attack| attack.is_attack_frame())
+            .map(|_| self.slash_attack())
+            .map_or(false, |slash| slash.overlaps(&enemy.character.body))
+    }
+
+    pub fn slash_attack(&self) -> Rect {
         let Character {
             body, direction, ..
         } = self.character;
 
-        self.attacking
-            .as_ref()
-            .filter(|attack| attack.is_attack_frame())
-            .map(|_| body.offset(Vec2::from(direction) * body.size()))
-            .map_or(false, |slash| slash.overlaps(&enemy.character.body))
+        let mut slash = body;
+
+        match direction {
+            Direction::Up | Direction::Down => slash.scale(1., 1.5),
+            Direction::Right | Direction::Left => slash.scale(1.5, 1.),
+        }
+
+
+
+        // let direction = match direction {
+        //     Direction::Up | Direction::Left => Vec2::from(direction) * 1.5,
+        //     Direction::Down | Direction::Right => Vec2::from(direction),
+        // }
+
+
+
+        let mut direction = Vec2::from(direction);
+
+        if direction.x < 0. || direction.y < 0. {
+            direction *= 1.5;
+        }
+        slash.offset(direction * body.size())
     }
 
     /// Draws the player either as idle of in an animation.
